@@ -80,23 +80,56 @@ export interface AnalysisResult {
     suggestion: string;
   }[];
   tvSeriesAnalysis?: {
+    overview: {
+      logline: string;
+      tone: string;
+      targetAudience: string;
+      centralProposal: string;
+    };
     pilotStructure: {
       incitingIncident: string;
+      act1: string;
       plotPoint1: string;
+      act2: string;
       midpoint: string;
       plotPoint2: string;
+      act3: string;
       climax: string;
       cliffhanger: string;
+      comments: string;
+    };
+    charactersAspects: {
+      name: string;
+      role: 'Protagonista' | 'Antagonista' | 'Apoio';
+      dramaticFunction: string;
+      externalDesire: string;
+      internalNeed: string;
+      seasonArc: string;
+      conflict: string;
+    }[];
+    worldAndTheme: {
+      rules: string;
+      socialMoralSpace: string;
+      franchisePotential: string;
+      centralTheme: string;
+      secondaryThemes: string[];
+      philosophicalQuestion: string;
     };
     narrativeEngine: {
       coreConflict: string;
       seasonPotential: string;
       format: 'Procedural' | 'Serializada' | 'Híbrida';
+      engineDescription: string;
     };
-    engagement: {
-      score: number;
-      hookStrength: string;
-      bingeFactor: string;
+    diagnosis: {
+      engagementScore: number;
+      strengths: string[];
+      weaknesses: string[];
+      improvementSuggestions: {
+        category: 'Estrutura' | 'Personagens' | 'Gancho';
+        suggestion: string;
+      }[];
+      finalVerdict: string;
     };
   };
 }

@@ -134,35 +134,89 @@ const ANALYSIS_SCHEMA = {
     tvSeriesAnalysis: {
       type: Type.OBJECT,
       properties: {
+        overview: {
+          type: Type.OBJECT,
+          properties: {
+            logline: { type: Type.STRING },
+            tone: { type: Type.STRING },
+            targetAudience: { type: Type.STRING },
+            centralProposal: { type: Type.STRING }
+          },
+          required: ["logline", "tone", "targetAudience", "centralProposal"]
+        },
         pilotStructure: {
           type: Type.OBJECT,
           properties: {
-            incitingIncident: { type: Type.STRING, description: "O evento que quebra a normalidade e inicia a trama." },
-            plotPoint1: { type: Type.STRING, description: "O ponto de não retorno que encerra o Ato 1." },
-            midpoint: { type: Type.STRING, description: "O meio do episódio, onde as apostas sobem ou há uma revelação." },
-            plotPoint2: { type: Type.STRING, description: "O momento 'tudo está perdido' ou a última preparação para o clímax." },
-            climax: { type: Type.STRING, description: "O confronto final do episódio." },
-            cliffhanger: { type: Type.STRING, description: "O gancho final que convence a assistir o próximo." }
+            incitingIncident: { type: Type.STRING },
+            act1: { type: Type.STRING },
+            plotPoint1: { type: Type.STRING },
+            act2: { type: Type.STRING },
+            midpoint: { type: Type.STRING },
+            plotPoint2: { type: Type.STRING },
+            act3: { type: Type.STRING },
+            climax: { type: Type.STRING },
+            cliffhanger: { type: Type.STRING },
+            comments: { type: Type.STRING }
           },
-          required: ["incitingIncident", "plotPoint1", "midpoint", "plotPoint2", "climax", "cliffhanger"]
+          required: ["incitingIncident", "act1", "plotPoint1", "act2", "midpoint", "plotPoint2", "act3", "climax", "cliffhanger", "comments"]
+        },
+        charactersAspects: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              role: { type: Type.STRING, enum: ['Protagonista', 'Antagonista', 'Apoio'] },
+              dramaticFunction: { type: Type.STRING },
+              externalDesire: { type: Type.STRING, description: "O que ele quer conscientemente." },
+              internalNeed: { type: Type.STRING, description: "O que ele precisa inconscientemente." },
+              seasonArc: { type: Type.STRING, description: "Potencial de evolução na temporada." },
+              conflict: { type: Type.STRING }
+            },
+            required: ["name", "role", "dramaticFunction", "externalDesire", "internalNeed", "seasonArc", "conflict"]
+          }
+        },
+        worldAndTheme: {
+          type: Type.OBJECT,
+          properties: {
+            rules: { type: Type.STRING },
+            socialMoralSpace: { type: Type.STRING },
+            franchisePotential: { type: Type.STRING },
+            centralTheme: { type: Type.STRING },
+            secondaryThemes: { type: Type.ARRAY, items: { type: Type.STRING } },
+            philosophicalQuestion: { type: Type.STRING }
+          },
+          required: ["rules", "socialMoralSpace", "franchisePotential", "centralTheme", "secondaryThemes", "philosophicalQuestion"]
         },
         narrativeEngine: {
           type: Type.OBJECT,
           properties: {
-            coreConflict: { type: Type.STRING, description: "O conflito central que pode sustentar múltiplas temporadas." },
-            seasonPotential: { type: Type.STRING, description: "Análise se a premissa aguenta 8-22 episódios." },
-            format: { type: Type.STRING, enum: ['Procedural', 'Serializada', 'Híbrida'], description: "O formato da série." }
+            coreConflict: { type: Type.STRING },
+            seasonPotential: { type: Type.STRING },
+            format: { type: Type.STRING, enum: ['Procedural', 'Serializada', 'Híbrida'] },
+            engineDescription: { type: Type.STRING, description: "Explicação do que gera novos episódios." }
           },
-          required: ["coreConflict", "seasonPotential", "format"]
+          required: ["coreConflict", "seasonPotential", "format", "engineDescription"]
         },
-        engagement: {
+        diagnosis: {
           type: Type.OBJECT,
           properties: {
-            score: { type: Type.NUMBER, description: "Nota de engajamento de 0 a 10." },
-            hookStrength: { type: Type.STRING, description: "Força do gancho inicial." },
-            bingeFactor: { type: Type.STRING, description: "Potencial de maratona." }
+            engagementScore: { type: Type.NUMBER },
+            strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+            weaknesses: { type: Type.ARRAY, items: { type: Type.STRING } },
+            improvementSuggestions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  category: { type: Type.STRING, enum: ['Estrutura', 'Personagens', 'Gancho'] },
+                  suggestion: { type: Type.STRING }
+                }
+              }
+            },
+            finalVerdict: { type: Type.STRING }
           },
-          required: ["score", "hookStrength", "bingeFactor"]
+          required: ["engagementScore", "strengths", "weaknesses", "improvementSuggestions", "finalVerdict"]
         }
       }
     }
@@ -180,34 +234,43 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
   const baseInstructions = `
       Atue como um Analista Literário de IA de nível sênior especializado em teoria narrativa clássica e moderna. 
       Sua tarefa é realizar uma "autópsia literária" profunda do manuscrito fornecido.
-      
-      INSTRUÇÕES TÉCNICAS GERAIS:
-      1. DIAGNÓSTICO ESTRUTURAL: Identifique frameworks clássicos (Jornada do Herói, Save the Cat, etc).
-      2. ANÁLISE LEXICAL: Analise ritmo, tom e escolha de palavras.
-      3. PERSONAGENS: Identifique arquétipos e arcos.
-      4. IDIOMA: Português do Brasil.
-      5. SCORE: Nota rigorosa de 0.0 a 10.0 baseada em qualidade técnica e criativa.
   `;
 
   const novelInstructions = `
       FOCO: ROMANCE/CONTO (LITERATURA)
-      - Aprofunde-se na prosa, no estilo literário e na imagética sensorial.
-      - Analise a estrutura clássica completa da obra.
+      Instruções Padrão de Análise Literária:
+      1. DIAGNÓSTICO ESTRUTURAL (Jornada, Save the Cat).
+      2. ANÁLISE LEXICAL & PROSA.
+      3. ARQUÉTIPOS DE PERSONAGENS.
+      4. SUBTEXTO & IDIOMA.
+      5. SCORE RIGOROSO (0-10).
   `;
 
   const tvPilotInstructions = `
       FOCO: ROTEIRO DE SÉRIE (TV PILOT / SCRIPT DOCTOR)
       
-      Você está atuando como um Showrunner e Script Doctor de Hollywood.
-      Sua análise deve focar na VIABILIDADE DA SÉRIE e na ESTRUTURA DO PILOTO.
+      Você é um Analista da Netflix/HBO. Sua análise deve ser um "Coverage" profissional de Script Doctor.
       
-      PREENCHA O CAMPO 'tvSeriesAnalysis' COM RIGOR:
-      1. MOTOR NARRATIVO: O que gera novos episódios? Qual o conflito inesgotável?
-      2. ESTRUTURA DO PILOTO: Identifique claramente Incidente Incitante, Plot Points e Ganchos.
-      3. POTENCIAL DE TEMPORADA: A premissa sustenta 10+ episódios ou morre no piloto?
-      4. ENGAGEMENT: O piloto vende a série?
+      PREENCHA 'tvSeriesAnalysis' SEGUINDO ESTES PILARES:
+
+      1. VISÃO GERAL: Logline vendedora, Tom preciso, Público-Alvo e Proposta Central.
+      2. ESTRUTURA DO PILOTO (CRUCIAL):
+         - Incidente Incitante: O evento que inicia tudo.
+         - Ato 1: Apresentação e Promessa.
+         - Plot Point 1: A decisão sem volta.
+         - Ato 2: Conflitos crescentes.
+         - Midpoint: O ponto de virada ou falsa vitória/derrota.
+         - Plot Point 2: Tudo está perdido.
+         - Ato 3/Clímax: Resolução do episódio.
+         - Cliffhanger: O gancho para o Ep 02.
+      3. PERSONAGENS (DENSIDADE):
+         - Diferencie: Desejo Externo (O que ele quer) vs Necessidade Interna (O que ele precisa aprender).
+         - Arco de Temporada: Onde ele pode chegar no Ep 10?
+      4. MUNDO & TEMA: Regras do universo e a Questão Filosófica central da série.
+      5. MOTOR NARRATIVO: O que gera "story map" para 5 temporadas? É Procedural ou Serializada?
+      6. DIAGNÓSTICO: Pontos Fortes, Fracos e Veredito Final (Pass or Buy?).
       
-      IMPORTANTE: Para roteiros, dê menos peso à "beleza da prosa" e mais peso à "eficácia dramática e visual".
+      TOM: Profissional, Analítico, "Showrunner". Sem floreios.
   `;
 
   const instructions = isTvPilot ? tvPilotInstructions : novelInstructions;
@@ -219,7 +282,7 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
       ${instructions}
       
       O resultado DEVE ser um JSON estritamente seguindo o schema fornecido. 
-      ${isTvPilot ? "PARA ROTEIROS DE SÉRIE, VOCÊ DEVE PREENCHER O OBJETO 'tvSeriesAnalysis'." : ""}
+      ${isTvPilot ? "PARA ROTEIROS DE SÉRIE, PREENCHA O OBJETO 'tvSeriesAnalysis' COMPLETAMENTE." : "PREENCHA O SCHEMA PADRÃO."}
 
       Texto para análise:
       ---
