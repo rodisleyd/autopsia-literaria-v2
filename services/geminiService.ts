@@ -160,6 +160,7 @@ export const analyzeLiteraryText = async (text: string): Promise<AnalysisResult>
       3. PERSONAGENS: Identifique arquétipos e avalie a agência e o arco de transformação.
       4. SUBTEXTO: Diferencie o texto explícito das camadas implícitas. Avalie se há "info-dumping" (exposição excessiva).
       5. IDIOMA: Toda a análise, evidências, sugestões e descrições DEVEM ser em Português do Brasil, mesmo que o texto original esteja em outro idioma.
+      6. SCORE (NOTA GLOBAL): Você deve atribuir uma nota flutuante de 0.0 a 10.0. SEJA RIGOROSO. O score deve refletir a qualidade técnica (estrutura, gramática), criativa (originalidade, personagens) e emocional. Não use valores padrão seguros (como 6.5 ou 7.0). Use a escala completa. Textos ruins devem receber notas baixas (2.0 - 5.0), textos medianos (5.1 - 7.5) e excelentes (7.6 - 9.9). Obra-prima = 10.0.
       
       O resultado DEVE ser um JSON estritamente seguindo o schema fornecido. 
       Use citações diretas do texto no campo "evidence" sempre que possível.
