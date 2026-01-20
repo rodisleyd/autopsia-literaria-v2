@@ -69,7 +69,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isLoading, ana
           <button
             onClick={() => onAnalysisTypeChange('novel')}
             className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${analysisType === 'novel'
-              ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20'
+              ? 'bg-violet text-white shadow-lg shadow-violet/20'
               : 'text-[var(--text-secondary)] hover:bg-[var(--bg-page)]'
               }`}
           >
