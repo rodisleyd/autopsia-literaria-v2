@@ -23,18 +23,22 @@ interface ReportViewProps {
     onShowPricing: () => void;
 }
 
-const TABS = [
-    { id: 'identity', label: 'Identidade', icon: Dna },
-    { id: 'narrative', label: 'Narrativa', icon: Map },
-    { id: 'characters', label: 'Personagens', icon: Users },
-    { id: 'language', label: 'Linguagem', icon: MessageSquare },
-    { id: 'prescription', label: 'Prescrição', icon: PenTool },
-];
-
 export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onShowPricing }) => {
-    const [activeTab, setActiveTab] = useState('identity');
+    // Determine mode based on data presence
+    const isTvMode = !!data.tvSeriesAnalysis;
+
+    const [activeTab, setActiveTab] = useState(isTvMode ? 'tv_series' : 'identity');
     const [tvSubTab, setTvSubTab] = useState('overview');
 
+    const tabs = isTvMode
+        ? [{ id: 'tv_series', label: 'DNA da Série', icon: Sparkles }]
+        : [
+            { id: 'identity', label: 'Identidade', icon: Dna },
+            { id: 'narrative', label: 'Narrativa', icon: Map },
+            { id: 'characters', label: 'Personagens', icon: Users },
+            { id: 'language', label: 'Linguagem', icon: MessageSquare },
+            { id: 'prescription', label: 'Prescrição', icon: PenTool },
+        ];
 
     const handleDownloadPDF = () => {
         if (user?.isPro) {
@@ -52,7 +56,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
                     <div>
                         <div className="flex items-center gap-2 text-violet font-bold mb-2 uppercase tracking-widest text-xs">
                             <Sparkles size={14} />
-                            Autópsia Literária 2.0
+                            Autópsia Literária 2.1
                         </div>
                         <h1 className="text-4xl md:text-5xl font-title font-bold text-[var(--text-primary)]">
                             {data.overview.title}
@@ -119,10 +123,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
                 {/* Navigation Tabs */}
                 <nav className="flex flex-wrap gap-2 mb-8 no-print sticky top-[5.5rem] z-40 py-2 px-2">
                     <div className="flex flex-wrap gap-2 bg-[var(--card-bg)] border border-[var(--border-card)] backdrop-blur-md rounded-2xl p-1.5 shadow-lg w-full md:w-auto">
-                        {[
-                            ...TABS,
-                            ...(data.tvSeriesAnalysis ? [{ id: 'tv_series', label: 'DNA da Série', icon: Sparkles }] : [])
-                        ].map((tab) => {
+                        {tabs.map((tab) => {
                             const Icon = tab.icon;
                             const isActive = activeTab === tab.id;
                             return (
@@ -557,9 +558,6 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
             </div>
 
             {/* Hidden Print Report */}
-            <PrintReport data={data} />
-
-            {/* Print Layout */}
             <PrintReport data={data} />
         </div>
     );
