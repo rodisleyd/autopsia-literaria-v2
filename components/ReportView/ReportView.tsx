@@ -118,7 +118,10 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
                 {/* Navigation Tabs */}
                 <nav className="flex flex-wrap gap-2 mb-8 no-print sticky top-[5.5rem] z-40 py-2 px-2">
                     <div className="flex flex-wrap gap-2 bg-[var(--card-bg)] border border-[var(--border-card)] backdrop-blur-md rounded-2xl p-1.5 shadow-lg w-full md:w-auto">
-                        {TABS.map((tab) => {
+                        {[
+                            ...TABS,
+                            ...(data.tvSeriesAnalysis ? [{ id: 'tv_series', label: 'DNA da Série', icon: Sparkles }] : [])
+                        ].map((tab) => {
                             const Icon = tab.icon;
                             const isActive = activeTab === tab.id;
                             return (
@@ -140,6 +143,90 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
 
                 {/* Content Area */}
                 <main className="min-h-[400px]">
+                    {activeTab === 'tv_series' && data.tvSeriesAnalysis && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* Narrative Engine */}
+                            <div className="glass-card">
+                                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-6 flex items-center gap-3">
+                                    <Target className="text-teal" />
+                                    Motor Narrativo
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="p-6 bg-teal/5 rounded-2xl border border-teal/10">
+                                        <label className="text-[10px] font-black text-teal uppercase tracking-[0.2em] mb-3 block">Conflito Central (Inesgotável)</label>
+                                        <p className="text-lg text-[var(--text-primary)] leading-relaxed italic">
+                                            "{data.tvSeriesAnalysis.narrativeEngine.coreConflict}"
+                                        </p>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">Potencial de Temporada</label>
+                                            <p className="text-sm text-[var(--text-secondary)]">{data.tvSeriesAnalysis.narrativeEngine.seasonPotential}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">Formato Sugerido</label>
+                                            <span className="inline-block px-3 py-1 bg-white/5 border border-white/10 rounded text-xs font-bold uppercase">{data.tvSeriesAnalysis.narrativeEngine.format}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Pilot Structure */}
+                            <div className="glass-card">
+                                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-8 flex items-center gap-3">
+                                    <Map className="text-violet" />
+                                    Topografia do Piloto
+                                </h3>
+                                <div className="relative border-l-2 border-violet/20 ml-4 space-y-12 pb-4">
+                                    {[
+                                        { label: 'Incidente Incitante', value: data.tvSeriesAnalysis.pilotStructure.incitingIncident },
+                                        { label: 'Plot Point 1', value: data.tvSeriesAnalysis.pilotStructure.plotPoint1 },
+                                        { label: 'Ponto Médio (Midpoint)', value: data.tvSeriesAnalysis.pilotStructure.midpoint },
+                                        { label: 'Plot Point 2', value: data.tvSeriesAnalysis.pilotStructure.plotPoint2 },
+                                        { label: 'Clímax', value: data.tvSeriesAnalysis.pilotStructure.climax },
+                                        { label: 'Cliffhanger Final', value: data.tvSeriesAnalysis.pilotStructure.cliffhanger, highlight: true }
+                                    ].map((point, idx) => (
+                                        <div key={idx} className="relative pl-8">
+                                            <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 ${point.highlight ? 'bg-violet border-violet shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'bg-[var(--bg-page)] border-violet/50'}`}></div>
+                                            <label className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 block ${point.highlight ? 'text-violet' : 'text-[var(--text-muted)]'}`}>
+                                                {point.label}
+                                            </label>
+                                            <p className="text-[var(--text-primary)] leading-relaxed text-sm">
+                                                {point.value}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Engagement Meter */}
+                            <div className="glass-card flex flex-col md:flex-row items-center gap-10">
+                                <div className="relative w-40 h-40 flex-shrink-0 flex items-center justify-center">
+                                    <svg className="w-full h-full transform -rotate-90">
+                                        <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
+                                        <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent"
+                                            strokeDasharray={439.8}
+                                            strokeDashoffset={439.8 - (439.8 * (data.tvSeriesAnalysis.engagement.score || 0)) / 10}
+                                            className="text-teal transition-all duration-1000 ease-out" />
+                                    </svg>
+                                    <div className="absolute flex flex-col items-center">
+                                        <span className="text-4xl font-black text-teal">{data.tvSeriesAnalysis.engagement.score}</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-teal/50">Engajamento</span>
+                                    </div>
+                                </div>
+                                <div className="flex-1 space-y-6 w-full">
+                                    <div>
+                                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">Força do Gancho (Hook)</label>
+                                        <p className="text-sm text-[var(--text-secondary)]">{data.tvSeriesAnalysis.engagement.hookStrength}</p>
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">Fator Maratona (Binge-Worthy)</label>
+                                        <p className="text-sm text-[var(--text-secondary)]">{data.tvSeriesAnalysis.engagement.bingeFactor}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {activeTab === 'identity' && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="glass-card">

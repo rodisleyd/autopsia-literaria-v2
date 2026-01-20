@@ -79,6 +79,26 @@ export interface AnalysisResult {
     section: string;
     suggestion: string;
   }[];
+  tvSeriesAnalysis?: {
+    pilotStructure: {
+      incitingIncident: string;
+      plotPoint1: string;
+      midpoint: string;
+      plotPoint2: string;
+      climax: string;
+      cliffhanger: string;
+    };
+    narrativeEngine: {
+      coreConflict: string;
+      seasonPotential: string;
+      format: 'Procedural' | 'Serializada' | 'Híbrida';
+    };
+    engagement: {
+      score: number;
+      hookStrength: string;
+      bingeFactor: string;
+    };
+  };
 }
 
 export enum AppStatus {

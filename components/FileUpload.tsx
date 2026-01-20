@@ -5,9 +5,11 @@ import { handleFileUpload } from '../services/fileService';
 interface FileUploadProps {
   onUpload: (text: string) => void;
   isLoading: boolean;
+  analysisType: 'novel' | 'tv_pilot';
+  onAnalysisTypeChange: (type: 'novel' | 'tv_pilot') => void;
 }
 
-export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isLoading }) => {
+export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isLoading, analysisType, onAnalysisTypeChange }) => {
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,6 +63,30 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isLoading }) =
 
   return (
     <div className="max-w-3xl mx-auto w-full group/upload">
+      {/* Mode Selector */}
+      <div className="flex justify-center mb-8">
+        <div className="bg-[var(--bg-card)]/50 p-1 rounded-2xl flex gap-1 border border-[var(--border-main)]">
+          <button
+            onClick={() => onAnalysisTypeChange('novel')}
+            className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${analysisType === 'novel'
+              ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20'
+              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-page)]'
+              }`}
+          >
+            Manuscrito Literário
+          </button>
+          <button
+            onClick={() => onAnalysisTypeChange('tv_pilot')}
+            className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${analysisType === 'tv_pilot'
+              ? 'bg-teal text-white shadow-lg shadow-teal/20'
+              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-page)]'
+              }`}
+          >
+            Roteiro de Série (TV)
+          </button>
+        </div>
+      </div>
+
       <div
         className={`relative border-2 border-dashed rounded-3xl p-12 transition-all duration-500 flex flex-col items-center justify-center gap-6 ${dragActive
           ? 'border-violet bg-violet/5 scale-[1.02]'

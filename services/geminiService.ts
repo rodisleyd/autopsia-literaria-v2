@@ -130,6 +130,41 @@ const ANALYSIS_SCHEMA = {
           suggestion: { type: Type.STRING }
         }
       }
+    },
+    tvSeriesAnalysis: {
+      type: Type.OBJECT,
+      properties: {
+        pilotStructure: {
+          type: Type.OBJECT,
+          properties: {
+            incitingIncident: { type: Type.STRING, description: "O evento que quebra a normalidade e inicia a trama." },
+            plotPoint1: { type: Type.STRING, description: "O ponto de não retorno que encerra o Ato 1." },
+            midpoint: { type: Type.STRING, description: "O meio do episódio, onde as apostas sobem ou há uma revelação." },
+            plotPoint2: { type: Type.STRING, description: "O momento 'tudo está perdido' ou a última preparação para o clímax." },
+            climax: { type: Type.STRING, description: "O confronto final do episódio." },
+            cliffhanger: { type: Type.STRING, description: "O gancho final que convence a assistir o próximo." }
+          },
+          required: ["incitingIncident", "plotPoint1", "midpoint", "plotPoint2", "climax", "cliffhanger"]
+        },
+        narrativeEngine: {
+          type: Type.OBJECT,
+          properties: {
+            coreConflict: { type: Type.STRING, description: "O conflito central que pode sustentar múltiplas temporadas." },
+            seasonPotential: { type: Type.STRING, description: "Análise se a premissa aguenta 8-22 episódios." },
+            format: { type: Type.STRING, enum: ['Procedural', 'Serializada', 'Híbrida'], description: "O formato da série." }
+          },
+          required: ["coreConflict", "seasonPotential", "format"]
+        },
+        engagement: {
+          type: Type.OBJECT,
+          properties: {
+            score: { type: Type.NUMBER, description: "Nota de engajamento de 0 a 10." },
+            hookStrength: { type: Type.STRING, description: "Força do gancho inicial." },
+            bingeFactor: { type: Type.STRING, description: "Potencial de maratona." }
+          },
+          required: ["score", "hookStrength", "bingeFactor"]
+        }
+      }
     }
   },
   required: [
@@ -139,31 +174,52 @@ const ANALYSIS_SCHEMA = {
   ]
 };
 
-export const analyzeLiteraryText = async (text: string): Promise<AnalysisResult> => {
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.0-flash-exp',
-    contents: `
+export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 'tv_pilot' = 'novel'): Promise<AnalysisResult> => {
+  const isTvPilot = analysisType === 'tv_pilot';
+
+  const baseInstructions = `
       Atue como um Analista Literário de IA de nível sênior especializado em teoria narrativa clássica e moderna. 
       Sua tarefa é realizar uma "autópsia literária" profunda do manuscrito fornecido.
       
-      INSTRUÇÕES TÉCNICAS:
-      1. DIAGNÓSTICO ESTRUTURAL: Identifique com precisão os seguintes frameworks com estas etapas específicas:
-         - Jornada do Herói (Vogler): Etapas clássicas.
-         - Save the Cat (Snyder): Beat sheet clássico.
-         - Story Circle (Harmon): 8 etapas.
-         - Estrutura de Sete Pontos (Dan Wells): 1. Gancho, 2. Plot Point 1, 3. Pinch 1, 4. Ponto Médio, 5. Pinch 2, 6. Plot Point 2, 7. Resolução.
-         - Arco Dramático de Personagem (McKee): 1. Desejo, 2. Conflito, 3. Escolhas, 4. Transformação.
-         - Kishōtenketsu (Estrutura Oriental): 1. Ki (Introdução), 2. Sho (Desenvolvimento), 3. Ten (Virada Inesperada), 4. Ketsu (Conclusão).
-         - Estrutura em Três Atos (Syd Field): 1. Ato 1 (Apresentação), 2. Ato 2 (Confronto), 3. Ato 3 (Resolução).
-      Seja crítico: se um estágio não estiver presente, marque como false. Use citações diretas no campo "evidence".
-      2. ANÁLISE LEXICAL E SINTÁTICA: Vá além do superficial. Analise como a escolha de palavras (marcadores lexicais) e a variação no comprimento das frases (ritmo sintático) constroem a atmosfera.
-      3. PERSONAGENS: Identifique arquétipos e avalie a agência e o arco de transformação.
-      4. SUBTEXTO: Diferencie o texto explícito das camadas implícitas. Avalie se há "info-dumping" (exposição excessiva).
-      5. IDIOMA: Toda a análise, evidências, sugestões e descrições DEVEM ser em Português do Brasil, mesmo que o texto original esteja em outro idioma.
-      6. SCORE (NOTA GLOBAL): Você deve atribuir uma nota flutuante de 0.0 a 10.0. SEJA RIGOROSO. O score deve refletir a qualidade técnica (estrutura, gramática), criativa (originalidade, personagens) e emocional. Não use valores padrão seguros (como 6.5 ou 7.0). Use a escala completa. Textos ruins devem receber notas baixas (2.0 - 5.0), textos medianos (5.1 - 7.5) e excelentes (7.6 - 9.9). Obra-prima = 10.0.
+      INSTRUÇÕES TÉCNICAS GERAIS:
+      1. DIAGNÓSTICO ESTRUTURAL: Identifique frameworks clássicos (Jornada do Herói, Save the Cat, etc).
+      2. ANÁLISE LEXICAL: Analise ritmo, tom e escolha de palavras.
+      3. PERSONAGENS: Identifique arquétipos e arcos.
+      4. IDIOMA: Português do Brasil.
+      5. SCORE: Nota rigorosa de 0.0 a 10.0 baseada em qualidade técnica e criativa.
+  `;
+
+  const novelInstructions = `
+      FOCO: ROMANCE/CONTO (LITERATURA)
+      - Aprofunde-se na prosa, no estilo literário e na imagética sensorial.
+      - Analise a estrutura clássica completa da obra.
+  `;
+
+  const tvPilotInstructions = `
+      FOCO: ROTEIRO DE SÉRIE (TV PILOT / SCRIPT DOCTOR)
+      
+      Você está atuando como um Showrunner e Script Doctor de Hollywood.
+      Sua análise deve focar na VIABILIDADE DA SÉRIE e na ESTRUTURA DO PILOTO.
+      
+      PREENCHA O CAMPO 'tvSeriesAnalysis' COM RIGOR:
+      1. MOTOR NARRATIVO: O que gera novos episódios? Qual o conflito inesgotável?
+      2. ESTRUTURA DO PILOTO: Identifique claramente Incidente Incitante, Plot Points e Ganchos.
+      3. POTENCIAL DE TEMPORADA: A premissa sustenta 10+ episódios ou morre no piloto?
+      4. ENGAGEMENT: O piloto vende a série?
+      
+      IMPORTANTE: Para roteiros, dê menos peso à "beleza da prosa" e mais peso à "eficácia dramática e visual".
+  `;
+
+  const instructions = isTvPilot ? tvPilotInstructions : novelInstructions;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.0-flash-exp',
+    contents: `
+      ${baseInstructions}
+      ${instructions}
       
       O resultado DEVE ser um JSON estritamente seguindo o schema fornecido. 
-      Use citações diretas do texto no campo "evidence" sempre que possível.
+      ${isTvPilot ? "PARA ROTEIROS DE SÉRIE, VOCÊ DEVE PREENCHER O OBJETO 'tvSeriesAnalysis'." : ""}
 
       Texto para análise:
       ---

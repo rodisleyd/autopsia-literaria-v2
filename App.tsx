@@ -28,6 +28,7 @@ const App: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [analysisType, setAnalysisType] = useState<'novel' | 'tv_pilot'>('novel');
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem(THEME_KEY) as 'dark' | 'light') || 'light';
   });
@@ -108,7 +109,7 @@ const App: React.FC = () => {
     setStatus(AppStatus.ANALYZING);
     setErrorDetails(null);
     try {
-      const result = await analyzeLiteraryText(text);
+      const result = await analyzeLiteraryText(text, analysisType);
 
       const finalResult: AnalysisResult = {
         ...result,
@@ -261,6 +262,8 @@ const App: React.FC = () => {
             <FileUpload
               onUpload={handleTextUpload}
               isLoading={status === AppStatus.ANALYZING}
+              analysisType={analysisType}
+              onAnalysisTypeChange={setAnalysisType}
             />
           </div>
         </div>
