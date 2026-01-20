@@ -174,7 +174,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
                                 <div className="space-y-8">
                                     <div className="glass-card">
                                         <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-6">Logline & Proposta</h3>
-                                        <div className="p-6 bg-white/5 rounded-2xl border border-white/10 mb-6">
+                                        <div className="p-6 bg-[var(--bg-page)]/50 rounded-2xl border border-[var(--border-main)] mb-6">
                                             <p className="text-xl font-serif italic text-[var(--text-primary)] leading-relaxed">
                                                 "{data.tvSeriesAnalysis.overview.logline}"
                                             </p>
@@ -228,18 +228,18 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
                                     </h3>
                                     <div className="relative border-l-2 border-white/10 ml-4 space-y-12 pb-4">
                                         {[
-                                            { label: 'Incidente Incitante', value: data.tvSeriesAnalysis.pilotStructure.incitingIncident, color: 'text-white' },
-                                            { label: 'Ato 1 (Promessa)', value: data.tvSeriesAnalysis.pilotStructure.act1, color: 'text-[var(--text-muted)]' },
-                                            { label: 'Plot Point 1', value: data.tvSeriesAnalysis.pilotStructure.plotPoint1, color: 'text-violet' },
-                                            { label: 'Ato 2 (Desenvolvimento)', value: data.tvSeriesAnalysis.pilotStructure.act2, color: 'text-[var(--text-muted)]' },
-                                            { label: 'Midpoint', value: data.tvSeriesAnalysis.pilotStructure.midpoint, color: 'text-teal' },
-                                            { label: 'Plot Point 2 (All is Lost)', value: data.tvSeriesAnalysis.pilotStructure.plotPoint2, color: 'text-violet' },
-                                            { label: 'Ato 3 (Clímax)', value: data.tvSeriesAnalysis.pilotStructure.act3, color: 'text-[var(--text-muted)]' },
-                                            { label: 'Clímax do Piloto', value: data.tvSeriesAnalysis.pilotStructure.climax, color: 'text-white' },
-                                            { label: 'Cliffhanger (Gancho)', value: data.tvSeriesAnalysis.pilotStructure.cliffhanger, color: 'text-violet font-bold' }
+                                            { label: 'Incidente Incitante', value: data.tvSeriesAnalysis.pilotStructure.incitingIncident, color: 'text-[var(--text-primary)] font-bold' },
+                                            { label: 'Ato 1 (Promessa)', value: data.tvSeriesAnalysis.pilotStructure.act1, color: 'text-[var(--text-secondary)]' },
+                                            { label: 'Plot Point 1', value: data.tvSeriesAnalysis.pilotStructure.plotPoint1, color: 'text-violet font-bold' },
+                                            { label: 'Ato 2 (Desenvolvimento)', value: data.tvSeriesAnalysis.pilotStructure.act2, color: 'text-[var(--text-secondary)]' },
+                                            { label: 'Midpoint', value: data.tvSeriesAnalysis.pilotStructure.midpoint, color: 'text-teal font-bold' },
+                                            { label: 'Plot Point 2 (All is Lost)', value: data.tvSeriesAnalysis.pilotStructure.plotPoint2, color: 'text-violet font-bold' },
+                                            { label: 'Ato 3 (Clímax)', value: data.tvSeriesAnalysis.pilotStructure.act3, color: 'text-[var(--text-secondary)]' },
+                                            { label: 'Clímax do Piloto', value: data.tvSeriesAnalysis.pilotStructure.climax, color: 'text-[var(--text-primary)] font-bold' },
+                                            { label: 'Cliffhanger (Gancho)', value: data.tvSeriesAnalysis.pilotStructure.cliffhanger, color: 'text-violet font-black' }
                                         ].map((beat, idx) => (
                                             <div key={idx} className="relative pl-8 group">
-                                                <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-[var(--bg-page)] bg-white/20 group-hover:bg-violet group-hover:scale-125 transition-all"></div>
+                                                <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-[var(--bg-page)] bg-[var(--text-primary)]/20 group-hover:bg-violet group-hover:scale-125 transition-all"></div>
                                                 <label className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 block ${beat.label.includes('Plot') || beat.label.includes('Cliff') ? 'text-violet' : 'text-[var(--text-muted)]'}`}>
                                                     {beat.label}
                                                 </label>
@@ -351,7 +351,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
                                     <div className="glass-card flex flex-col items-center">
                                         <div className="relative w-40 h-40 flex items-center justify-center mb-6">
                                             <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-white/5" />
+                                                <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-[var(--text-primary)]/5" />
                                                 <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="8" fill="transparent"
                                                     strokeDasharray={439.8}
                                                     strokeDashoffset={439.8 - (439.8 * data.tvSeriesAnalysis.diagnosis.engagementScore) / 10}
@@ -399,7 +399,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {data.tvSeriesAnalysis.diagnosis.improvementSuggestions.map((sug, i) => (
                                                 <div key={i} className="p-4 bg-black/20 rounded-xl">
-                                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/40 block mb-2">{sug.category}</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] block mb-2">{sug.category}</span>
                                                     <p className="text-sm text-[var(--text-primary)]">{sug.suggestion}</p>
                                                 </div>
                                             ))}
