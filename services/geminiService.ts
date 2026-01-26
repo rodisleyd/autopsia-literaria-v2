@@ -231,6 +231,17 @@ const ANALYSIS_SCHEMA = {
 export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 'tv_pilot' = 'novel'): Promise<AnalysisResult> => {
   const isTvPilot = analysisType === 'tv_pilot';
 
+  // Dynamic Schema Construction:
+  // We deep clone the schema to modify it based on the analysis type.
+  // This is CRITICAL to prevent the AI from hallucinating TV data for novels.
+  const activeSchema = JSON.parse(JSON.stringify(ANALYSIS_SCHEMA));
+
+  if (!isTvPilot) {
+    // For novels, explicitly remove the TV Series Analysis object
+    // This guarantees the AI cannot return this data structure
+    delete activeSchema.properties.tvSeriesAnalysis;
+  }
+
   const baseInstructions = `
       Atue como um Analista Literário de IA de nível sênior especializado em teoria narrativa clássica e moderna. 
       Sua tarefa é realizar uma "autópsia literária" profunda do manuscrito fornecido.
@@ -282,7 +293,7 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
       ${instructions}
       
       O resultado DEVE ser um JSON estritamente seguindo o schema fornecido. 
-      ${isTvPilot ? "PARA ROTEIROS DE SÉRIE, PREENCHA O OBJETO 'tvSeriesAnalysis' COMPLETAMENTE." : "PREENCHA O SCHEMA PADRÃO."}
+      ${isTvPilot ? "PARA ROTEIROS DE SÉRIE, PREENCHA O OBJETO 'tvSeriesAnalysis' COMPLETAMENTE." : "ATENÇÃO: VOCÊ ESTÁ ANALISANDO UM ROMANCE. NÃO GERE DADOS DE SÉRIE DE TV. IGNORE O OBJETO 'tvSeriesAnalysis' SE ELE AINDA EXISTIR VISUALMENTE PARA VOCÊ."}
 
       Texto para análise:
       ---
@@ -291,7 +302,7 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
     `,
     config: {
       responseMimeType: "application/json",
-      responseSchema: ANALYSIS_SCHEMA as any,
+      responseSchema: activeSchema as any,
     },
   });
 
