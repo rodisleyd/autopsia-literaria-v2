@@ -329,7 +329,7 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
         console.log("Switching to Fallback Model (Gemini 1.5 Pro)...");
         // Attempt 2: Gemini 1.5 Pro (More stable than Flash)
         const fallbackResponse = await ai.models.generateContent({
-          model: 'gemini-1.5-pro',
+          model: 'gemini-1.5-pro-002',
           contents: finalPrompt,
           config: {
             responseMimeType: "application/json",
@@ -349,7 +349,7 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
           // For safety, we keep schema but expect it might fail if model too old. 
           // actually 1.5 flash is better. let's try gemini-1.5-flash-latest
           const emergencyResponse = await ai.models.generateContent({
-            model: 'gemini-1.5-flash-latest',
+            model: 'gemini-1.5-flash-002',
             contents: finalPrompt,
             config: {
               responseMimeType: "application/json",
