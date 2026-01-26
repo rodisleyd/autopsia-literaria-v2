@@ -18,9 +18,14 @@ export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPla
                 ? 'price_1StxyoFZtA2Na1Njq4bCM7Wh'
                 : 'price_1StxuIFZtA2Na1NjzGRNOJKP';
 
-            await import('../services/stripeService').then(mod =>
-                mod.createCheckoutSession(priceId)
-            );
+            // SIMULATION MODE ENABLED
+            // await import('../services/stripeService').then(mod =>
+            //    mod.createCheckoutSession(priceId)
+            // );
+
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            onSelectPlan(planKey);
 
         } catch (error) {
             console.error('Erro ao iniciar checkout:', error);
