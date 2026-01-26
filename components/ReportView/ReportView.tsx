@@ -41,7 +41,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
         ];
 
     const handleDownloadPDF = () => {
-        if (user?.isPro) {
+        if (user?.isPro || data.isPaid) {
             window.print();
         } else {
             onShowPricing();

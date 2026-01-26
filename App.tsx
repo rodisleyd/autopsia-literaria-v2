@@ -368,8 +368,10 @@ const App: React.FC = () => {
                   } catch (e) { console.error(e); }
                 }
 
-                // For 'unitario', we also set isPro: true for current session so they see the PRO report
-                setUser({ ...user, isPro: true, plan: 'unitario' });
+                // For 'unitario', we DO NOT set isPro: true globally.
+                // The access is controlled by 'analysisResult.isPaid'.
+                // We just insure the user object remains correct.
+                setUser({ ...user });
               }
             } else {
               setShowAuthModal(true);
