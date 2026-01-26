@@ -319,17 +319,17 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
     const errorMessage = error.toString().toLowerCase();
 
     // Check if it's a transient error (Rate Limit or Overloaded)
-    if (errorMessage.includes('429') || errorMessage.includes('resource exhausted') || errorMessage.includes('quota') || errorMessage.includes('503') || errorMessage.includes('overloaded')) {
+    if (errorMessage.includes('429') || errorMessage.includes('resource exhausted') || errorMessage.includes('quota') || errorMessage.includes('503') || errorMessage.includes('overloaded') || errorMessage.includes('404') || errorMessage.includes('not found')) {
 
       console.log("🚦 High traffic detected. Waiting 3s before switching to Fallback Model...");
       // Add a small delay (backoff) before trying the secondary model
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       try {
-        console.log("Switching to Fallback Model (Gemini 1.5 Flash)...");
-        // Attempt 2: Gemini 1.5 Flash (Reliable, Higher Limits)
+        console.log("Switching to Fallback Model (Gemini 1.5 Pro)...");
+        // Attempt 2: Gemini 1.5 Pro (More stable than Flash)
         const fallbackResponse = await ai.models.generateContent({
-          model: 'gemini-1.5-flash-001',
+          model: 'gemini-1.5-pro',
           contents: finalPrompt,
           config: {
             responseMimeType: "application/json",
@@ -339,12 +339,30 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
         return JSON.parse(fallbackResponse.text);
 
       } catch (fallbackError: any) {
-        console.error("Fallback Model also failed:", fallbackError);
-        throw new Error("🚨 O sistema está muito congestionado no momento (Erro 429). Tentei usar o servidor de backup, mas ele também falhou. Por favor, aguarde 2 minutos e tente novamente.");
+        console.warn("Fallback (1.5 Pro) failed:", fallbackError);
+
+        console.log("🚦 Trying Emergency Backup (Gemini 1.0 Pro)...");
+        try {
+          // Attempt 3: Gemini 1.0 Pro (Legacy/Stable)
+          // Note: 1.0 Pro often doesn't support JSON Schema well, but we try as last resort
+          // We remove config.responseSchema for 1.0 just in case, or keep it if trusted.
+          // For safety, we keep schema but expect it might fail if model too old. 
+          // actually 1.5 flash is better. let's try gemini-1.5-flash-latest
+          const emergencyResponse = await ai.models.generateContent({
+            model: 'gemini-1.5-flash-latest',
+            contents: finalPrompt,
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: activeSchema as any,
+            },
+          });
+          return JSON.parse(emergencyResponse.text);
+        } catch (finalError) {
+          throw new Error("🚨 O sistema está indisponível em todos os modelos (2.0, 1.5 Pro e Flash). Por favor, verifique sua conta ou aguarde.");
+        }
       }
     }
 
-    // If it's not a rate limit error, throw original (e.g. invalid apiKey)
     throw error;
   }
 };
