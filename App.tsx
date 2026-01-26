@@ -61,6 +61,20 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  // Check for Stripe Redirect Status
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get('status') === 'success') {
+      alert('Pagamento confirmado com sucesso! 🚀\nSua conta foi atualizada.');
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    else if (query.get('status') === 'cancel') {
+      alert('Pagamento cancelado. Se tiver dúvidas, entre em contato.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   // Load history from Firestore when user changes
   useEffect(() => {
     const loadHistory = async () => {

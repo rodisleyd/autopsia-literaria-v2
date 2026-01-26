@@ -7,6 +7,28 @@ interface PricingModalProps {
 }
 
 export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPlan }) => {
+    const [loading, setLoading] = React.useState<string | null>(null);
+
+    const handlePurchase = async (planKey: 'unitario' | 'mensal') => {
+        try {
+            setLoading(planKey);
+
+            // Map internal plan keys to Stripe Price IDs
+            const priceId = planKey === 'unitario'
+                ? 'price_1StxyoFZtA2Na1Njq4bCM7Wh'
+                : 'price_1StxuIFZtA2Na1NjzGRNOJKP';
+
+            await import('../services/stripeService').then(mod =>
+                mod.createCheckoutSession(priceId)
+            );
+
+        } catch (error) {
+            console.error('Erro ao iniciar checkout:', error);
+            alert('Erro ao iniciar o pagamento. Tente novamente.');
+            setLoading(null);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-start md:justify-center p-4 md:p-8 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-300">
             <div className="relative w-full max-w-3xl glass border border-white/20 rounded-[2rem] animate-in zoom-in-95 duration-300 my-auto">
@@ -56,10 +78,14 @@ export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPla
                                 <PricingFeature text="Histórico na Área de Membros" />
                             </ul>
                             <button
-                                onClick={() => onSelectPlan('unitario')}
-                                className="w-full py-4 border border-white/10 rounded-xl font-bold text-[var(--text-primary)] hover:bg-white/5 transition-all text-base"
+                                onClick={() => handlePurchase('unitario')}
+                                disabled={!!loading}
+                                className="w-full py-4 border border-white/10 rounded-xl font-bold text-[var(--text-primary)] hover:bg-white/5 transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
                             >
-                                Comprar Acesso Único
+                                {loading === 'unitario' ? (
+                                    <span className="animate-spin mr-2">⏳</span>
+                                ) : null}
+                                {loading === 'unitario' ? 'Processando...' : 'Comprar Acesso Único'}
                             </button>
                         </div>
                         {/* Monthly Plan */}
@@ -90,10 +116,14 @@ export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPla
                                 <PricingFeature text="Novas Funções Antecipadas" highlight />
                             </ul>
                             <button
-                                onClick={() => onSelectPlan('mensal')}
-                                className="w-full py-4 bg-violet text-white rounded-xl font-bold transition-all text-base shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.5)] hover:scale-[1.02] active:scale-95 relative z-10"
+                                onClick={() => handlePurchase('mensal')}
+                                disabled={!!loading}
+                                className="w-full py-4 bg-violet text-white rounded-xl font-bold transition-all text-base shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.5)] hover:scale-[1.02] active:scale-95 relative z-10 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
                             >
-                                Assinar Agora
+                                {loading === 'mensal' ? (
+                                    <span className="animate-spin mr-2">⏳</span>
+                                ) : null}
+                                {loading === 'mensal' ? 'Processando...' : 'Assinar Agora'}
                             </button>
                         </div>
                     </div>

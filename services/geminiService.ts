@@ -286,9 +286,8 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
 
   const instructions = isTvPilot ? tvPilotInstructions : novelInstructions;
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.0-flash-exp',
-    contents: `
+  // Prompt content preparation
+  const finalPrompt = `
       ${baseInstructions}
       ${instructions}
       
@@ -299,12 +298,49 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
       ---
       ${text}
       ---
-    `,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: activeSchema as any,
-    },
-  });
+  `;
 
-  return JSON.parse(response.text);
+  try {
+    console.log("Attempting analysis with Gemini 2.0 Flash Exp...");
+    // Attempt 1: Gemini 2.0 (High Quality, Experimental Limits)
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-exp',
+      contents: finalPrompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: activeSchema as any,
+      },
+    });
+
+    return JSON.parse(response.text);
+
+  } catch (error: any) {
+    console.warn("Primary Model Failed:", error);
+    const errorMessage = error.toString().toLowerCase();
+
+    // Check if it's a transient error (Rate Limit or Overloaded)
+    if (errorMessage.includes('429') || errorMessage.includes('resource exhausted') || errorMessage.includes('quota') || errorMessage.includes('503') || errorMessage.includes('overloaded')) {
+
+      console.log("🚦 High traffic detected. Switching to Fallback Model (Gemini 1.5 Flash)...");
+      try {
+        // Attempt 2: Gemini 1.5 Flash (Reliable, Higher Limits)
+        const fallbackResponse = await ai.models.generateContent({
+          model: 'gemini-1.5-flash',
+          contents: finalPrompt,
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: activeSchema as any,
+          },
+        });
+        return JSON.parse(fallbackResponse.text);
+
+      } catch (fallbackError: any) {
+        console.error("Fallback Model also failed:", fallbackError);
+        throw new Error("🚨 O sistema está muito congestionado no momento (Erro 429). Tentei usar o servidor de backup, mas ele também falhou. Por favor, aguarde 2 minutos e tente novamente.");
+      }
+    }
+
+    // If it's not a rate limit error, throw original (e.g. invalid apiKey)
+    throw error;
+  }
 };
