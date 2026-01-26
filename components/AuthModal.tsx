@@ -31,7 +31,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
             case 'unavailable': return 'Banco de dados temporariamente indisponível.';
             default:
                 if (code.includes('permission')) return 'Erro de permissão no banco de dados (Firestore).';
-                return 'Ocorreu um erro inesperado. Tente novamente ou verifique o console do navegador.';
+                return `Ocorreu um erro inesperado (${code}). Tente novamente ou verifique o console do navegador.`;
         }
     };
 
