@@ -321,11 +321,15 @@ export const analyzeLiteraryText = async (text: string, analysisType: 'novel' | 
     // Check if it's a transient error (Rate Limit or Overloaded)
     if (errorMessage.includes('429') || errorMessage.includes('resource exhausted') || errorMessage.includes('quota') || errorMessage.includes('503') || errorMessage.includes('overloaded')) {
 
-      console.log("🚦 High traffic detected. Switching to Fallback Model (Gemini 1.5 Flash)...");
+      console.log("🚦 High traffic detected. Waiting 3s before switching to Fallback Model...");
+      // Add a small delay (backoff) before trying the secondary model
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
       try {
+        console.log("Switching to Fallback Model (Gemini 1.5 Flash)...");
         // Attempt 2: Gemini 1.5 Flash (Reliable, Higher Limits)
         const fallbackResponse = await ai.models.generateContent({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-1.5-flash-001',
           contents: finalPrompt,
           config: {
             responseMimeType: "application/json",
