@@ -66,15 +66,46 @@ const App: React.FC = () => {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get('status') === 'success') {
-      alert('Pagamento confirmado com sucesso! 🚀\nSua conta foi atualizada.');
+
+      // Check if there was a pending analysis payment
+      const pendingAnalysisId = localStorage.getItem('pending_payment_aid');
+
+      if (pendingAnalysisId && user) {
+        // Mark as paid in Firestore (Optimistic update first)
+        const markAsPaid = async () => {
+          try {
+            // We need to find the analysis doc (we have ID and UserID)
+            const q = query(
+              collection(db, 'analyses'),
+              where('id', '==', pendingAnalysisId),
+              where('userId', '==', user.id)
+            );
+            const snap = await getDocs(q);
+            snap.forEach(async (d) => {
+              await updateDoc(doc(db, 'analyses', d.id), { isPaid: true });
+            });
+
+            // Clear pending
+            localStorage.removeItem('pending_payment_aid');
+            alert('Pagamento confirmado! Sua análise foi desbloqueada. 🚀');
+          } catch (e) {
+            console.error("Error confirming payment", e);
+          }
+        };
+        markAsPaid();
+      } else {
+        alert('Assinatura confirmada com sucesso! 🚀\nSua conta foi atualizada para PRO.');
+      }
+
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
     else if (query.get('status') === 'cancel') {
+      localStorage.removeItem('pending_payment_aid');
       alert('Pagamento cancelado. Se tiver dúvidas, entre em contato.');
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, []);
+  }, [user]);
 
   // Load history from Firestore when user changes
   useEffect(() => {
@@ -345,6 +376,7 @@ const App: React.FC = () => {
       {showPricingModal && (
         <PricingModal
           proOnly={proOnlyMode}
+          analysisId={analysisResult?.id}
           onClose={() => {
             setShowPricingModal(false);
             setProOnlyMode(false);

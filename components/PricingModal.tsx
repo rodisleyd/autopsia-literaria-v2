@@ -5,9 +5,10 @@ interface PricingModalProps {
     onClose: () => void;
     onSelectPlan: (planId: 'unitario' | 'mensal') => void;
     proOnly?: boolean;
+    analysisId?: string;
 }
 
-export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPlan, proOnly }) => {
+export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPlan, proOnly, analysisId }) => {
     const [loading, setLoading] = React.useState<string | null>(null);
 
     const handlePurchase = async (planKey: 'unitario' | 'mensal') => {
@@ -19,14 +20,16 @@ export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPla
                 ? 'price_1StxyoFZtA2Na1Njq4bCM7Wh'
                 : 'price_1StxuIFZtA2Na1NjzGRNOJKP';
 
-            // SIMULATION MODE ENABLED
-            // await import('../services/stripeService').then(mod =>
-            //    mod.createCheckoutSession(priceId)
-            // );
+            import { createCheckoutSession } from '../services/stripeService';
 
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            onSelectPlan(planKey);
+            // If buying a specific analysis (not subscription), save ID to link after payment
+            if (planKey === 'unitario' && analysisId) {
+                localStorage.setItem('pending_payment_aid', analysisId);
+            }
+
+            await createCheckoutSession(priceId);
+
+
 
         } catch (error) {
             console.error('Erro ao iniciar checkout:', error);
