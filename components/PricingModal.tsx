@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Check, Sparkles, CreditCard, Zap } from 'lucide-react';
-import { createCheckoutSession } from '../services/stripeService';
+import { X, Check, Sparkles, CreditCard, Zap } from 'lucide-react';
+import { createCheckoutSession, STRIPE_PRICES } from '../services/stripeService';
 
 interface PricingModalProps {
     onClose: () => void;
@@ -18,8 +19,8 @@ export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPla
 
             // Map internal plan keys to Stripe Price IDs
             const priceId = planKey === 'unitario'
-                ? 'price_1StxyoFZtA2Na1Njq4bCM7Wh'
-                : 'price_1StxuIFZtA2Na1NjzGRNOJKP';
+                ? STRIPE_PRICES.ONE_TIME_AUTOPSY
+                : STRIPE_PRICES.SUBSCRIPTION_MONTHLY;
 
             // If buying a specific analysis (not subscription), save ID to link after payment
             if (planKey === 'unitario' && analysisId) {

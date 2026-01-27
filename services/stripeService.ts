@@ -11,9 +11,9 @@ import { db, auth } from './firebase';
 
 export const STRIPE_PRICES = {
     // Monthly Subscription (Recurring)
-    SUBSCRIPTION_MONTHLY: 'price_1StxuIFZtA2Na1NjzGRNOJKP',
+    SUBSCRIPTION_MONTHLY: 'price_1SuHAm2aOAYeM3X74plWIpEz',
     // Single Autopsy (One-time)
-    ONE_TIME_AUTOPSY: 'price_1StxyoFZtA2Na1Njq4bCM7Wh'
+    ONE_TIME_AUTOPSY: 'price_1SuHCB2aOAYeM3X7qKqr4m8l'
 };
 
 export interface CheckoutSession {
