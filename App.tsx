@@ -27,6 +27,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [proOnlyMode, setProOnlyMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [analysisType, setAnalysisType] = useState<'novel' | 'tv_pilot'>('novel');
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -245,7 +246,10 @@ const App: React.FC = () => {
           history={history}
           user={user}
           onBack={handleReset}
-          onUpgrade={() => setShowPricingModal(true)}
+          onUpgrade={(proOnly) => {
+            setProOnlyMode(!!proOnly);
+            setShowPricingModal(true);
+          }}
         />
       ) : status === AppStatus.HOW_IT_WORKS ? (
         <HowItWorks
@@ -286,7 +290,10 @@ const App: React.FC = () => {
           data={analysisResult}
           onReset={handleReset}
           user={user}
-          onShowPricing={() => setShowPricingModal(true)}
+          onShowPricing={() => {
+            setProOnlyMode(false);
+            setShowPricingModal(true);
+          }}
         />
       ) : status === AppStatus.HISTORY ? (
         <HistoryList
@@ -295,7 +302,10 @@ const App: React.FC = () => {
           onSelect={handleSelectFromHistory}
           onDelete={handleDeleteFromHistory}
           onBack={handleReset}
-          onUpgrade={() => setShowPricingModal(true)}
+          onUpgrade={(proOnly) => {
+            setProOnlyMode(!!proOnly);
+            setShowPricingModal(true);
+          }}
         />
       ) : status === AppStatus.ERROR ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -334,7 +344,11 @@ const App: React.FC = () => {
 
       {showPricingModal && (
         <PricingModal
-          onClose={() => setShowPricingModal(false)}
+          proOnly={proOnlyMode}
+          onClose={() => {
+            setShowPricingModal(false);
+            setProOnlyMode(false);
+          }}
           onSelectPlan={async (plan) => {
             // Simulated payment
             if (user) {
@@ -374,9 +388,9 @@ const App: React.FC = () => {
                 setUser({ ...user });
               }
             } else {
-              setShowAuthModal(true);
             }
             setShowPricingModal(false);
+            setProOnlyMode(false);
           }}
         />
       )}

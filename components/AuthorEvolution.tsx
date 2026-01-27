@@ -30,7 +30,7 @@ interface AuthorEvolutionProps {
     history: AnalysisResult[];
     user: User | null;
     onBack: () => void;
-    onUpgrade: () => void;
+    onUpgrade: (proOnly?: boolean) => void;
 }
 
 export const AuthorEvolution: React.FC<AuthorEvolutionProps> = ({ history, user, onBack, onUpgrade }) => {
@@ -87,7 +87,7 @@ export const AuthorEvolution: React.FC<AuthorEvolutionProps> = ({ history, user,
 
                 {!isPro && (
                     <button
-                        onClick={onUpgrade}
+                        onClick={() => onUpgrade(true)}
                         className="flex items-center gap-3 px-6 py-3 bg-violet text-white rounded-2xl font-bold hover:bg-violet/80 transition-all shadow-lg active:scale-95"
                     >
                         <Zap size={18} fill="currentColor" />
@@ -110,7 +110,7 @@ export const AuthorEvolution: React.FC<AuthorEvolutionProps> = ({ history, user,
                                 Visualize seus gráficos de progresso, análise de tendências e histórico de desempenho técnico. Comece sua jornada profissional hoje.
                             </p>
                             <button
-                                onClick={onUpgrade}
+                                onClick={() => onUpgrade(true)}
                                 className="w-full py-5 bg-violet text-white rounded-2xl font-bold text-lg shadow-[0_10px_30px_rgba(139,92,246,0.3)] hover:scale-[1.02] transition-all"
                             >
                                 Assinar Plano PRO

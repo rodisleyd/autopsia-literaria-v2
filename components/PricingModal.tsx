@@ -4,9 +4,10 @@ import { X, Check, Sparkles, CreditCard, Zap } from 'lucide-react';
 interface PricingModalProps {
     onClose: () => void;
     onSelectPlan: (planId: 'unitario' | 'mensal') => void;
+    proOnly?: boolean;
 }
 
-export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPlan }) => {
+export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPlan, proOnly }) => {
     const [loading, setLoading] = React.useState<string | null>(null);
 
     const handlePurchase = async (planKey: 'unitario' | 'mensal') => {
@@ -59,40 +60,42 @@ export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPla
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-6 lg:gap-8 py-4">
+                    <div className={`grid md:grid-cols-${proOnly ? '1 max-w-md mx-auto' : '2'} gap-6 lg:gap-8 py-4`}>
                         {/* Unitary Plan */}
-                        <div className="glass-card flex flex-col p-8 border-white/10 hover:border-violet/30 transition-all group">
-                            <div className="mb-6">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-black uppercase tracking-widest opacity-50">Autópsia Única</span>
-                                    <div className="p-2 rounded-lg bg-white/5 text-[var(--text-muted)]">
-                                        <CreditCard className="w-5 h-5" />
+                        {!proOnly && (
+                            <div className="glass-card flex flex-col p-8 border-white/10 hover:border-violet/30 transition-all group">
+                                <div className="mb-6">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm font-black uppercase tracking-widest opacity-50">Autópsia Única</span>
+                                        <div className="p-2 rounded-lg bg-white/5 text-[var(--text-muted)]">
+                                            <CreditCard className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-4xl font-title font-bold text-[var(--text-primary)]">R$ 5,99</span>
+                                        <span className="text-[var(--text-muted)] text-sm">/análise</span>
                                     </div>
                                 </div>
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-4xl font-title font-bold text-[var(--text-primary)]">R$ 5,99</span>
-                                    <span className="text-[var(--text-muted)] text-sm">/análise</span>
-                                </div>
-                            </div>
 
-                            <ul className="space-y-4 mb-10 flex-grow">
-                                <PricingFeature text="Análise Completa da Obra" />
-                                <PricingFeature text="Exportação PDF Premium" />
-                                <PricingFeature text="Acesso aos 7 Modelos Narrativos" />
-                                <PricingFeature text="Métricas de Ritmo e Tom" />
-                                <PricingFeature text="Histórico na Área de Membros" />
-                            </ul>
-                            <button
-                                onClick={() => handlePurchase('unitario')}
-                                disabled={!!loading}
-                                className="w-full py-4 border border-white/10 rounded-xl font-bold text-[var(--text-primary)] hover:bg-white/5 transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
-                            >
-                                {loading === 'unitario' ? (
-                                    <span className="animate-spin mr-2">⏳</span>
-                                ) : null}
-                                {loading === 'unitario' ? 'Processando...' : 'Comprar Acesso Único'}
-                            </button>
-                        </div>
+                                <ul className="space-y-4 mb-10 flex-grow">
+                                    <PricingFeature text="Análise Completa da Obra" />
+                                    <PricingFeature text="Exportação PDF Premium" />
+                                    <PricingFeature text="Acesso aos 7 Modelos Narrativos" />
+                                    <PricingFeature text="Métricas de Ritmo e Tom" />
+                                    <PricingFeature text="Histórico na Área de Membros" />
+                                </ul>
+                                <button
+                                    onClick={() => handlePurchase('unitario')}
+                                    disabled={!!loading}
+                                    className="w-full py-4 border border-white/10 rounded-xl font-bold text-[var(--text-primary)] hover:bg-white/5 transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+                                >
+                                    {loading === 'unitario' ? (
+                                        <span className="animate-spin mr-2">⏳</span>
+                                    ) : null}
+                                    {loading === 'unitario' ? 'Processando...' : 'Comprar Acesso Único'}
+                                </button>
+                            </div>
+                        )}
                         {/* Monthly Plan */}
                         <div className="glass-card flex flex-col p-8 border-violet/30 bg-violet/[0.03] relative overflow-hidden group scale-105 shadow-[0_20px_60px_rgba(139,92,246,0.15)]">
                             <div className="absolute top-0 right-0 bg-violet text-white text-[9px] font-black px-4 py-1.5 rounded-bl-2xl uppercase tracking-[0.2em] z-10">

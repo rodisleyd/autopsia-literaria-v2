@@ -8,7 +8,7 @@ interface HistoryListProps {
   onSelect: (result: AnalysisResult) => void;
   onDelete: (id: string) => void;
   onBack: () => void;
-  onUpgrade: () => void;
+  onUpgrade: (proOnly?: boolean) => void;
 }
 
 export const HistoryList: React.FC<HistoryListProps> = ({ history, user, onSelect, onDelete, onBack, onUpgrade }) => {
@@ -113,7 +113,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({ history, user, onSelec
                 </p>
               </div>
               <button
-                onClick={onUpgrade}
+                onClick={() => onUpgrade(true)}
                 className="w-full md:w-auto px-8 py-4 bg-violet text-white rounded-2xl font-bold text-lg shadow-[0_10px_25px_rgba(139,92,246,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
               >
                 <Zap size={20} fill="currentColor" />
