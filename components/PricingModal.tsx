@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Check, Sparkles, CreditCard, Zap } from 'lucide-react';
+import { createCheckoutSession } from '../services/stripeService';
 
 interface PricingModalProps {
     onClose: () => void;
@@ -19,8 +20,6 @@ export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPla
             const priceId = planKey === 'unitario'
                 ? 'price_1StxyoFZtA2Na1Njq4bCM7Wh'
                 : 'price_1StxuIFZtA2Na1NjzGRNOJKP';
-
-            import { createCheckoutSession } from '../services/stripeService';
 
             // If buying a specific analysis (not subscription), save ID to link after payment
             if (planKey === 'unitario' && analysisId) {

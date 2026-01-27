@@ -64,8 +64,8 @@ const App: React.FC = () => {
 
   // Check for Stripe Redirect Status
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    if (query.get('status') === 'success') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('status') === 'success') {
 
       // Check if there was a pending analysis payment
       const pendingAnalysisId = localStorage.getItem('pending_payment_aid');
@@ -100,7 +100,7 @@ const App: React.FC = () => {
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-    else if (query.get('status') === 'cancel') {
+    else if (urlParams.get('status') === 'cancel') {
       localStorage.removeItem('pending_payment_aid');
       alert('Pagamento cancelado. Se tiver dúvidas, entre em contato.');
       window.history.replaceState({}, document.title, window.location.pathname);
