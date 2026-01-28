@@ -13,7 +13,7 @@ export const STRIPE_PRICES = {
     // Monthly Subscription (Recurring)
     SUBSCRIPTION_MONTHLY: 'price_1Suckm18nDbuMvfnEd646Wds',
     // Single Autopsy (One-time)
-    ONE_TIME_AUTOPSY: 'price_1Sucjo18nDbuMvfnlaRNKjmd'
+    ONE_TIME_AUTOPSY: 'price_1Sucjo18nDbuMvfnIarNKjmd'
 };
 
 export interface CheckoutSession {
