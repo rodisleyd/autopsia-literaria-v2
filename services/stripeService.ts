@@ -42,7 +42,7 @@ export const createCheckoutSession = async (priceId: string): Promise<void> => {
     const docRef = await addDoc(checkoutSessionsRef, {
         price: priceId,
         mode: mode,
-        payment_method_types: ['card', 'pix'],
+        automatic_payment_methods: { enabled: true },
         success_url: window.location.origin + '/?status=success', // Redirect back to app
         cancel_url: window.location.origin + '/?status=cancel',
     });
