@@ -16,21 +16,18 @@ export interface PixPaymentResponse {
 export const mercadoPagoService = {
     createPixPayment: async (amount: number, userEmail: string, description: string): Promise<PixPaymentResponse | null> => {
         try {
-            const response = await fetch('https://api.mercadopago.com/v1/payments', {
+            // Call internal API (Serverless Function) to avoid CORS
+            const response = await fetch('/api/create-pix', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${MP_ACCESS_TOKEN}`,
-                    'Content-Type': 'application/json',
-                    'X-Idempotency-Key': crypto.randomUUID()
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     transaction_amount: amount,
                     description: description,
-                    payment_method_id: 'pix',
                     payer: {
                         email: userEmail
-                    },
-                    external_reference: `credit_purchase_${Date.now()}`
+                    }
                 })
             });
 
@@ -42,6 +39,7 @@ export const mercadoPagoService = {
 
             const data = await response.json();
 
+            // The structure returned by our API mirrors the MP API inside "point_of_interaction"
             return {
                 id: data.id.toString(),
                 qr_code: data.point_of_interaction.transaction_data.qr_code,
@@ -58,10 +56,10 @@ export const mercadoPagoService = {
 
     checkPaymentStatus: async (paymentId: string): Promise<string> => {
         try {
-            const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            const response = await fetch(`/api/check-payment?id=${paymentId}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${MP_ACCESS_TOKEN}`
+                    'Content-Type': 'application/json'
                 }
             });
 
