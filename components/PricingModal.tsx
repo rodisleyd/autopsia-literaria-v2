@@ -126,21 +126,21 @@ export const PricingModal: React.FC<PricingModalProps> = ({ onClose, onSelectPla
                         <button
                             onClick={() => { setActiveTab('credits'); setPixData(null); }}
                             className={`p-4 rounded-xl text-left transition-all border ${activeTab === 'credits'
-                                ? 'bg-violet/20 border-violet/30 text-white'
-                                : 'bg-transparent border-transparent text-[var(--text-muted)] hover:bg-white/5'}`}
+                                ? 'bg-violet text-white shadow-lg shadow-violet/20 border-violet scale-[1.02]'
+                                : 'bg-transparent border-transparent text-[var(--text-muted)] hover:bg-white/5 hover:text-[var(--text-secondary)]'}`}
                         >
-                            <span className="block text-xs font-black uppercase tracking-widest mb-1">Pacotes de Créditos</span>
-                            <span className="block font-bold">Quero comprar avulso</span>
+                            <span className="block text-xs font-black uppercase tracking-widest mb-1 opacity-80">Pacotes de Créditos</span>
+                            <span className="block font-bold text-lg">Quero comprar avulso</span>
                         </button>
 
                         <button
                             onClick={() => { setActiveTab('subscription'); setPixData(null); }}
                             className={`p-4 rounded-xl text-left transition-all border ${activeTab === 'subscription'
-                                ? 'bg-violet/20 border-violet/30 text-white'
-                                : 'bg-transparent border-transparent text-[var(--text-muted)] hover:bg-white/5'}`}
+                                ? 'bg-violet text-white shadow-lg shadow-violet/20 border-violet scale-[1.02]'
+                                : 'bg-transparent border-transparent text-[var(--text-muted)] hover:bg-white/5 hover:text-[var(--text-secondary)]'}`}
                         >
-                            <span className="block text-xs font-black uppercase tracking-widest mb-1">Assinatura Mensal</span>
-                            <span className="block font-bold">Quero acesso ilimitado</span>
+                            <span className="block text-xs font-black uppercase tracking-widest mb-1 opacity-80">Assinatura Mensal</span>
+                            <span className="block font-bold text-lg">Quero acesso ilimitado</span>
                         </button>
                     </div>
 
