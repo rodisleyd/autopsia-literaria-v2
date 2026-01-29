@@ -29,6 +29,7 @@ export const authService = {
                                 name: firebaseUser.displayName || 'Autor',
                                 isPro: false,
                                 historyCount: 0,
+                                credits: 0,
                                 joinedAt: Date.now()
                             };
                             await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
@@ -61,6 +62,7 @@ export const authService = {
             name: firebaseUser.displayName || 'Autor',
             isPro: false,
             historyCount: 0,
+            credits: 0,
             joinedAt: Date.now()
         };
         await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
@@ -84,6 +86,7 @@ export const authService = {
             name: firebaseUser.displayName || 'Autor',
             isPro: false,
             historyCount: 0,
+            credits: 0,
             joinedAt: Date.now()
         };
         await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
@@ -102,6 +105,7 @@ export const authService = {
             name: name,
             isPro: false,
             historyCount: 0,
+            credits: 0,
             joinedAt: Date.now()
         };
 
@@ -152,5 +156,39 @@ export const authService = {
             proUsers: users.filter(u => u.isPro).length,
             totalAnalyses: analysesSnap.size
         };
+    },
+
+    // Credit System Methods
+    addCredits: async (userId: string, amount: number) => {
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+            const currentCredits = userSnap.data().credits || 0;
+            await updateDoc(userRef, {
+                credits: currentCredits + amount
+            });
+        }
+    },
+
+    consumeCredit: async (userId: string): Promise<boolean> => {
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) return false;
+
+        const userData = userSnap.data() as User;
+
+        // If Pro, no need to consume
+        if (userData.isPro) return true;
+
+        if ((userData.credits || 0) > 0) {
+            await updateDoc(userRef, {
+                credits: (userData.credits || 0) - 1
+            });
+            return true;
+        }
+
+        return false;
     }
 };

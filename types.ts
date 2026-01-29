@@ -156,6 +156,7 @@ export interface User {
   isAdmin?: boolean;
   plan?: 'unitario' | 'mensal';
   historyCount: number;
+  credits: number; // Créditos para autópsias avulsas
   joinedAt?: number;
 }
 

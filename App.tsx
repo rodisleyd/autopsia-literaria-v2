@@ -152,17 +152,30 @@ const App: React.FC = () => {
       return;
     }
 
+    // Check credit balance or Pro status
+    if (user.isPro === false && (user.credits || 0) <= 0 && !user.isAdmin) {
+      setProOnlyMode(false); // Enable credit buying
+      setShowPricingModal(true);
+      return;
+    }
+
     setStatus(AppStatus.ANALYZING);
     setErrorDetails(null);
     try {
       const result = await analyzeLiteraryText(text, analysisType);
+
+      // Consume credit if not Pro/Admin
+      if (!user.isPro && !user.isAdmin) {
+        await authService.consumeCredit(user.id);
+        setUser(prev => prev ? { ...prev, credits: (prev.credits || 0) - 1 } : null);
+      }
 
       const finalResult: AnalysisResult = {
         ...result,
         id: Math.random().toString(36).substr(2, 9),
         timestamp: Date.now(),
         userId: user?.id || '',
-        isPaid: !!(user?.isPro || user?.isAdmin)
+        isPaid: true // Consumed credit = paid
       };
 
       // Save to Firestore if user is logged in
