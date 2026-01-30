@@ -152,30 +152,20 @@ const App: React.FC = () => {
       return;
     }
 
-    // Check credit balance or Pro status
-    if (user.isPro === false && (user.credits || 0) <= 0 && !user.isAdmin) {
-      setProOnlyMode(false); // Enable credit buying
-      setShowPricingModal(true);
-      return;
-    }
-
     setStatus(AppStatus.ANALYZING);
     setErrorDetails(null);
     try {
       const result = await analyzeLiteraryText(text, analysisType);
 
-      // Consume credit if not Pro/Admin
-      if (!user.isPro && !user.isAdmin) {
-        await authService.consumeCredit(user.id);
-        setUser(prev => prev ? { ...prev, credits: (prev.credits || 0) - 1 } : null);
-      }
+      // Freemium: No credit consumption here.
+      // Payment happens on PDF Download or History Access.
 
       const finalResult: AnalysisResult = {
         ...result,
         id: Math.random().toString(36).substr(2, 9),
         timestamp: Date.now(),
         userId: user?.id || '',
-        isPaid: true // Consumed credit = paid
+        isPaid: user.isPro || !!user.isAdmin // Only paid if Pro/Admin initially
       };
 
       // Save to Firestore if user is logged in
@@ -235,6 +225,15 @@ const App: React.FC = () => {
 
   const navigateToHistory = () => {
     if (user) {
+      // User request: "Modal only appears if he wants to... access history"
+      // Interpretation: History access is a Premium feature or requires explicit unlock.
+      // For now, enforcing Pro or Pricing Modal.
+      // Ideally we might allow if they have paid analyses, but following strict instruction for 'accessing history'.
+      if (!user.isPro) {
+        setProOnlyMode(true); // Maybe show Pro tab first? Or Credits? User didn't specify.
+        setShowPricingModal(true);
+        return;
+      }
       setStatus(AppStatus.HISTORY);
     } else {
       setShowAuthModal(true);
@@ -334,6 +333,32 @@ const App: React.FC = () => {
           data={analysisResult}
           onReset={handleReset}
           user={user}
+          onConsumeCredit={async () => {
+            if (user && (user.credits || 0) > 0) {
+              await authService.consumeCredit(user.id);
+              setUser(prev => prev ? { ...prev, credits: (prev.credits || 0) - 1 } : null);
+              const updated = { ...analysisResult, isPaid: true };
+              setAnalysisResult(updated);
+              // Persist payment status
+              // Note: Ideally we find the doc ID properly, but for now relying on App logic or simplified update
+              // Since we just created it, we can query it or add a helper
+              try {
+                const q = query(
+                  collection(db, 'analyses'),
+                  where('id', '==', updated.id),
+                  where('userId', '==', user.id)
+                );
+                const snap = await getDocs(q);
+                snap.forEach(async (d) => {
+                  await updateDoc(doc(db, 'analyses', d.id), { isPaid: true });
+                });
+              } catch (e) {
+                console.error("Error updating paid status", e);
+              }
+              return true;
+            }
+            return false;
+          }}
           onShowPricing={() => {
             setProOnlyMode(false);
             setShowPricingModal(true);

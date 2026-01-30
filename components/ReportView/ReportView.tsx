@@ -21,9 +21,10 @@ interface ReportViewProps {
     onReset: () => void;
     user: User | null;
     onShowPricing: () => void;
+    onConsumeCredit: () => Promise<boolean>;
 }
 
-export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onShowPricing }) => {
+export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onShowPricing, onConsumeCredit }) => {
     // Determine mode based on data presence
     const isTvMode = !!data.tvSeriesAnalysis;
 
@@ -40,11 +41,25 @@ export const ReportView: React.FC<ReportViewProps> = ({ data, onReset, user, onS
             { id: 'prescription', label: 'Prescrição', icon: PenTool },
         ];
 
-    const handleDownloadPDF = () => {
+    const handleDownloadPDF = async () => {
         if (user?.isPro || data.isPaid) {
             window.print();
         } else {
-            onShowPricing();
+            // Check if user has credits
+            if ((user?.credits || 0) > 0) {
+                if (window.confirm(`Você tem ${user?.credits} créditos. Deseja usar 1 crédito para baixar o relatório?`)) {
+                    const success = await onConsumeCredit();
+                    if (success) {
+                        // Small delay to allow state update? Usually strictly synchronous in React re-render, 
+                        // but print() blocks execution. Better to wait for re-render or assume success.
+                        setTimeout(() => window.print(), 100);
+                    } else {
+                        alert("Erro ao consumir crédito.");
+                    }
+                }
+            } else {
+                onShowPricing();
+            }
         }
     };
 
